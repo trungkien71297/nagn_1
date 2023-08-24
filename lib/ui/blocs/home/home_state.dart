@@ -4,3 +4,9 @@ part of 'home_bloc.dart';
 abstract class HomeState {}
 
 class HomeInitial extends HomeState {}
+
+final class OperationState extends HomeState {
+  final Operation operation;
+
+  OperationState(this.operation);
+}

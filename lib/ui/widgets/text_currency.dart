@@ -4,7 +4,8 @@ import 'package:flutter/material.dart';
 class TextCurrency extends StatelessWidget {
   final Color background;
   final TextEditingController controller;
-  const TextCurrency({super.key, required this.background, required this.controller});
+  final bool readOnly;
+  const TextCurrency({super.key, required this.background, required this.controller, this.readOnly = false});
 
   @override
   Widget build(BuildContext context) {
@@ -14,14 +15,17 @@ class TextCurrency extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.center,
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Padding(padding: const EdgeInsets.only(left: 10, right: 10), child: CountryFlag.fromCountryCode("VN", height: 45, width: 45, borderRadius: 0,),),
+          Padding(padding: const EdgeInsets.only(left: 10, right: 10), child: CountryFlag.fromCountryCode("VN", height: 20, width: 40, borderRadius: 0,),),
           Expanded(child: Container(
             padding: const EdgeInsets.only(right: 10),
             child: TextField(
+              showCursor: false,
+              readOnly: readOnly,
               controller: controller,
               keyboardType: TextInputType.none,
-              textDirection: TextDirection.rtl,
-              style: const TextStyle(fontSize: 40),
+              textDirection: TextDirection.ltr,
+              textAlign: TextAlign.end,
+              style: const TextStyle(fontSize: 40, color: Colors.white),
               decoration: const InputDecoration(
                 border: InputBorder.none,
               ),

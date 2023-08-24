@@ -21,7 +21,7 @@ class MyApp extends StatelessWidget {
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
         useMaterial3: true,
       ),
-      home: BlocProvider(create: (context) => HomeBloc(), child: HomePage(),),
+      home: BlocProvider(create: (context) => HomeBloc(), child: const HomePage(),),
     );
   }
 }

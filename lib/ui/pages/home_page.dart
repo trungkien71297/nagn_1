@@ -5,7 +5,7 @@ import 'package:nagn_1/ui/widgets/keycap.dart';
 import 'package:nagn_1/ui/widgets/text_currency.dart';
 
 class HomePage extends StatelessWidget {
-  HomePage({super.key});
+  const HomePage({super.key});
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -14,78 +14,178 @@ class HomePage extends StatelessWidget {
         children: [
           Expanded(
             flex: 1,
-            child: TextCurrency(background: Colors.blue, controller: context.read<HomeBloc>().inputController),),
+            child: TextCurrency(
+              background: const Color.fromRGBO(45, 49, 59, 1),
+              controller: context.read<HomeBloc>().inputController,
+              readOnly: true,
+            ),
+          ),
           Expanded(
             flex: 1,
-            child: TextCurrency(background: Colors.yellow, controller: context.read<HomeBloc>().outputController),),
+            child: TextCurrency(
+              background: const Color.fromRGBO(51, 56, 67, 1),
+              controller: context.read<HomeBloc>().outputController,
+              readOnly: true,
+            ),
+          ),
           GridView.count(
             shrinkWrap: true,
             physics: const NeverScrollableScrollPhysics(),
             crossAxisCount: 4,
             children: [
               KeyCap(
-                onPressed: () {},
-                text: "C",
+                onPressed: () {
+                  context
+                      .read<HomeBloc>()
+                      .add(HomeOnInputFunction(FunctionKey.clear));
+                },
+                text: "AC",
               ),
               KeyCap(
-                onPressed: () {},
+                onPressed: () {
+                  context
+                      .read<HomeBloc>()
+                      .add(HomeOnInputFunction(FunctionKey.backward));
+                },
                 text: "←",
               ),
               KeyCap(
-                onPressed: () {},
+                onPressed: () {
+                  context
+                      .read<HomeBloc>()
+                      .add(HomeOnInputFunction(FunctionKey.percentage));
+                },
                 text: "%",
               ),
-              KeyCap(
-                onPressed: () {},
-                text: "÷",
+              BlocBuilder<HomeBloc, HomeState>(
+                builder: (context, state) {
+                  bool isSelect = false;
+                  if (state is OperationState) {
+                    if (state.operation == Operation.divide) {
+                      isSelect = true;
+                    }
+                  }
+                  return KeyCap(
+                    onPressed: () {
+                      context
+                          .read<HomeBloc>()
+                          .add(HomeOnInputOperation(Operation.divide));
+                    },
+                    isSelect: isSelect,
+                    text: "÷",
+                  );
+                },
               ),
               KeyCap(
-                onPressed: () {},
+                onPressed: () {
+                  context.read<HomeBloc>().add(HomeOnInputNumber("7"));
+                },
                 text: "7",
               ),
               KeyCap(
-                onPressed: () {},
+                onPressed: () {
+                  context.read<HomeBloc>().add(HomeOnInputNumber("8"));
+                },
                 text: "8",
               ),
               KeyCap(
-                onPressed: () {},
+                onPressed: () {
+                  context.read<HomeBloc>().add(HomeOnInputNumber("9"));
+                },
                 text: "9",
               ),
-              KeyCap(
-                onPressed: () {},
-                text: "×",
+              BlocBuilder<HomeBloc, HomeState>(
+                builder: (context, state) {
+                  bool isSelect = false;
+                  if (state is OperationState) {
+                    if (state.operation == Operation.multi) {
+                      isSelect = true;
+                    }
+                  }
+                  return KeyCap(
+                    onPressed: () {
+                      context
+                          .read<HomeBloc>()
+                          .add(HomeOnInputOperation(Operation.multi));
+                    },
+                    isSelect: isSelect,
+                    text: "×",
+                  );
+                },
               ),
               KeyCap(
-                onPressed: () {},
+                onPressed: () {
+                  context.read<HomeBloc>().add(HomeOnInputNumber("4"));
+                },
                 text: "4",
               ),
               KeyCap(
-                onPressed: () {},
+                onPressed: () {
+                  context.read<HomeBloc>().add(HomeOnInputNumber("5"));
+                },
                 text: "5",
               ),
               KeyCap(
-                onPressed: () {},
+                onPressed: () {
+                  context.read<HomeBloc>().add(HomeOnInputNumber("6"));
+                },
                 text: "6",
               ),
-              KeyCap(
-                onPressed: () {},
-                text: "-",
+              BlocBuilder<HomeBloc, HomeState>(
+                builder: (context, state) {
+                  bool isSelect = false;
+                  if (state is OperationState) {
+                    if (state.operation == Operation.minus) {
+                      isSelect = true;
+                    }
+                  }
+                  return KeyCap(
+                    onPressed: () {
+                      context
+                          .read<HomeBloc>()
+                          .add(HomeOnInputOperation(Operation.minus));
+                    },
+                    isSelect: isSelect,
+                    text: "-",
+                  );
+                },
               ),
               KeyCap(
-                onPressed: () {},
+                onPressed: () {
+                  context.read<HomeBloc>().add(HomeOnInputNumber("1"));
+                },
                 text: "1",
               ),
               KeyCap(
-                onPressed: () {},
+                onPressed: () {
+                  context.read<HomeBloc>().add(HomeOnInputNumber("2"));
+                },
                 text: "2",
               ),
               KeyCap(
-                onPressed: () {},
+                onPressed: () {
+                  context.read<HomeBloc>().add(HomeOnInputNumber("3"));
+                },
                 text: "3",
               ),
-              KeyCap(
-                onPressed: () {},
-                text: "+",
+              BlocBuilder<HomeBloc, HomeState>(
+                builder: (context, state) {
+                  bool isSelect = false;
+                  if (state is OperationState) {
+                    if (state.operation == Operation.add) {
+                      isSelect = true;
+                    }
+                  }
+                  return KeyCap(
+                    onPressed: () {
+                      context
+                          .read<HomeBloc>()
+                          .add(HomeOnInputOperation(Operation.add));
+                    },
+                    isSelect: isSelect,
+                    text: "+",
+                  );
+                },
               ),
               KeyCap(
                 onPressed: () {
@@ -94,19 +194,42 @@ class HomePage extends StatelessWidget {
                 text: "0",
               ),
               KeyCap(
-                onPressed: () {},
+                onPressed: () {
+                  context.read<HomeBloc>().add(HomeOnInputNumber("000"));
+                },
                 text: "000",
               ),
               KeyCap(
-                onPressed: () {},
+                onPressed: () {
+                  context
+                      .read<HomeBloc>()
+                      .add(HomeOnInputFunction(FunctionKey.dec));
+                },
                 text: ".",
               ),
               KeyCap(
-                onPressed: () {},
+                onPressed: () {
+                  context
+                      .read<HomeBloc>()
+                      .add(HomeOnInputOperation(Operation.equal));
+                },
                 text: "=",
               ),
             ],
           ),
+          Container(
+            width: double.infinity,
+            height: 40,
+            color: Colors.brown,
+            child: const Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                Text("1\$ = 23,000đ", style: TextStyle(fontSize: 16, color: Colors.white60),),
+                Text("Last update: 24/08/2023", style: TextStyle(fontSize: 10, color: Colors.white60),)
+              ],
+            ),
+          )
         ],
       ),
     );
