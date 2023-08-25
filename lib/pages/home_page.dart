@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:nagn_1/ui/blocs/home/home_bloc.dart';
-import 'package:nagn_1/ui/widgets/keycap.dart';
-import 'package:nagn_1/ui/widgets/text_currency.dart';
+import 'package:nagn_1/blocs/home/home_bloc.dart';
+import 'package:nagn_1/widgets/keycap.dart';
+import 'package:nagn_1/widgets/text_currency.dart';
 
 class HomePage extends StatelessWidget {
   const HomePage({super.key});

@@ -2,6 +2,7 @@ import 'package:decimal/decimal.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
+import 'package:nagn_1/repository/currency_repository.dart';
 
 part 'home_event.dart';
 part 'home_state.dart';
@@ -9,6 +10,7 @@ part 'home_state.dart';
 class HomeBloc extends Bloc<HomeEvent, HomeState> {
   final TextEditingController inputController = TextEditingController();
   final TextEditingController outputController = TextEditingController();
+  final CurrencyRepository repository;
   late bool onOperate;
   late String inputString;
   late String outputString;
@@ -16,7 +18,7 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
   late Operation currentOperation;
   NumberFormat currencyFormatterInput = NumberFormat.decimalPattern();
   NumberFormat currencyFormatterOutput = NumberFormat.decimalPattern();
-  HomeBloc() : super(HomeInitial()) {
+  HomeBloc(this.repository) : super(HomeInitial()) {
     _reset();
     currencyFormatterInput.maximumFractionDigits = 15;
     currencyFormatterInput.minimumFractionDigits = 0;
@@ -28,6 +30,7 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
   }
 
   _onInputOperation(HomeOnInputOperation event, Emitter emitter) {
+    repository.test();
     if (currentOperation == event.operation && onOperate) {
       return;
     }
