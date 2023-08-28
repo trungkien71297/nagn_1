@@ -1,4 +1,6 @@
 import 'package:decimal/decimal.dart';
+import 'package:nagn_1/models/country.dart';
+import 'package:nagn_1/models/currency.dart';
 import 'package:nagn_1/repository/local.dart';
 
 import 'api.dart';
@@ -6,7 +8,8 @@ import 'api.dart';
 abstract interface class CurrencyRepository {
   Future<bool> updateCurrency();
   Future<Decimal> getRate(String countryCode1, String countryCode2);
-  void test();
+  Future<List<Country>> getCountries();
+  Future<List<Currency>> getCurrencies();
 }
 
 class CurrencyRepositoryImpl implements CurrencyRepository {
@@ -22,13 +25,17 @@ class CurrencyRepositoryImpl implements CurrencyRepository {
 
   @override
   Future<Decimal> getRate(String countryCode1, String countryCode2) {
-    // TODO: implement getRate
+    //  TODO: implement getRate
     throw UnimplementedError();
   }
 
   @override
-  void test() async {
-    var res = await api.getCurrencyRate();
-    print(res);
+  Future<List<Country>> getCountries() {
+    return local.getAllCountries();
+  }
+
+  @override
+  Future<List<Currency>> getCurrencies() {
+    return local.getAllCurrency();
   }
 }

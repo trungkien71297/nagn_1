@@ -1,12 +1,13 @@
 import 'package:dio/dio.dart';
 
-const URL = "https://script.google.com/macros/s/AKfycbyVc3fmjgEForv_2JFGymrwjCrPS44mpV3UtHaUqOhJEnUMROk-JM-qV_aROCqAR2KziQ/exec";
+const url =
+    "https://script.google.com/macros/s/AKfycbyVc3fmjgEForv_2JFGymrwjCrPS44mpV3UtHaUqOhJEnUMROk-JM-qV_aROCqAR2KziQ/exec";
 
 class Api {
   final Dio dio = Dio();
 
   Api() {
-    dio.options.baseUrl = URL;
+    dio.options.baseUrl = url;
     dio.options.connectTimeout = const Duration(seconds: 10);
     dio.options.receiveTimeout = const Duration(seconds: 10);
   }
@@ -19,7 +20,6 @@ class Api {
         return null;
       }
     } catch (e) {
-      print(e);
       return null;
     }
   }

@@ -14,19 +14,33 @@ class HomePage extends StatelessWidget {
         children: [
           Expanded(
             flex: 1,
-            child: TextCurrency(
-              background: const Color.fromRGBO(45, 49, 59, 1),
-              controller: context.read<HomeBloc>().inputController,
-              readOnly: true,
+            child: BlocBuilder<HomeBloc, HomeState>(
+              builder: (context, state) {
+                return TextCurrency(
+                  initCountry: "US",
+                  initSymbol: "\$",
+                  background: const Color.fromRGBO(45, 49, 59, 1),
+                  controller: context.read<HomeBloc>().inputController,
+                  countries: state is HomeInitial ? state.countries : [],
+                  readOnly: true,
+                );
+              },
             ),
           ),
-          Expanded(
-            flex: 1,
-            child: TextCurrency(
-              background: const Color.fromRGBO(51, 56, 67, 1),
-              controller: context.read<HomeBloc>().outputController,
-              readOnly: true,
-            ),
+          BlocBuilder<HomeBloc, HomeState>(
+            builder: (context, state) {
+              return Expanded(
+                flex: 1,
+                child: TextCurrency(
+                  initCountry: "VN",
+                  initSymbol: "đ",
+                  background: const Color.fromRGBO(51, 56, 67, 1),
+                  controller: context.read<HomeBloc>().outputController,
+                  countries: state is HomeInitial ? state.countries : [],
+                  readOnly: true,
+                ),
+              );
+            },
           ),
           GridView.count(
             shrinkWrap: true,
@@ -225,8 +239,14 @@ class HomePage extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.center,
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
-                Text("1\$ = 23,000đ", style: TextStyle(fontSize: 16, color: Colors.white60),),
-                Text("Last update: 24/08/2023", style: TextStyle(fontSize: 10, color: Colors.white60),)
+                Text(
+                  "1\$ = 23,000đ",
+                  style: TextStyle(fontSize: 16, color: Colors.white60),
+                ),
+                Text(
+                  "Last update: 24/08/2023",
+                  style: TextStyle(fontSize: 10, color: Colors.white60),
+                )
               ],
             ),
           )

@@ -13,14 +13,10 @@ class SplashScreen extends StatefulWidget {
 }
 
 class _SplashScreenState extends State<SplashScreen> {
-
   @override
   void initState() {
     super.initState();
     checkInit();
-    Timer.periodic(const Duration(seconds: 2), (timer) {
-      Navigator.of(context).pushNamed("/home");
-    });
   }
 
   @override
@@ -31,15 +27,21 @@ class _SplashScreenState extends State<SplashScreen> {
       ),
     );
   }
-   Future<void> checkInit() async {
-     final SharedPreferences prefs = await SharedPreferences.getInstance();
-     await getIt<Local>().init();
-     var isInit = prefs.getBool("isInit")  ?? false;
-     if (!isInit) {
-       var res = await getIt<Local>().initDB();
-       if (res) {
-         prefs.setBool("isInit", true);
-       }
-     }
-   }
+
+  Future<void> checkInit() async {
+    final SharedPreferences prefs = await SharedPreferences.getInstance();
+    await getIt<Local>().init();
+    var isInit = prefs.getBool("isInit") ?? false;
+    //  if (!isInit) {
+    if (true) {
+      var res = await getIt<Local>().initDB();
+      if (res) {
+        prefs.setBool("isInit", true);
+      }
+    }
+
+    Future.delayed(const Duration(seconds: 3), () {
+      Navigator.of(context).popAndPushNamed("/home");
+    });
+  }
 }

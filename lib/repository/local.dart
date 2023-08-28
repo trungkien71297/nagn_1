@@ -1,3 +1,6 @@
+import 'dart:convert';
+import 'dart:ffi';
+
 import 'package:csv/csv.dart';
 import 'package:flutter/services.dart';
 import 'package:isar/isar.dart';
@@ -16,8 +19,8 @@ class Local {
   }
 
   Future<bool> initDB() async {
-    var res1 = await doInitCountry();
     var res2 = await doInitCurrency();
+    var res1 = await doInitCountry();
     return (res1 && res2);
   }
 
@@ -25,14 +28,17 @@ class Local {
     final csvString = await rootBundle.loadString("assets/files/countries.csv");
     final csvData = const CsvToListConverter().convert(csvString);
     List<Country> listCountry = [];
+    var currency = await getAllCurrency();
     for (var element in csvData) {
-      var country = Country()
+      if (currency.any((e) => e.code == element[4])) {
+        var country = Country()
           ..name = element[0] as String
           ..code2 = element[1] as String
           ..code3 = element[2] as String
           ..currencyName = element[3] as String
           ..currencyCode = element[4] as String;
-      listCountry.add(country);
+        listCountry.add(country);
+      }
     }
     await isar.writeTxn(() async {
       await isar.countrys.clear();
@@ -45,20 +51,23 @@ class Local {
   }
 
   Future<bool> doInitCurrency() async {
-    final rateString = await rootBundle.loadString("assets/files/rate_init.csv");
+    final rateString =
+        await rootBundle.loadString("assets/files/rate_init.csv");
     final rateData = const CsvToListConverter().convert(rateString);
-    final symbolString = await rootBundle.loadString("assets/files/symbols.csv");
+    final symbolString =
+        await rootBundle.loadString("assets/files/symbols_list.csv");
     final symbolData = const CsvToListConverter().convert(symbolString);
     Map<String, String> symbols = {};
     for (var e in symbolData) {
-      symbols[e[2] as String] = e[3] as String;
+      symbols[e[1].toString()] = e[2].toString();
     }
     List<Currency> listCurrency = [];
+
     for (var r in rateData) {
       var c = Currency()
-      ..code = r[0].toString()
-      ..symbols = symbols[r[0]]
-      ..rate = r[1];
+        ..code = r[0].toString()
+        ..symbols = symbols[r[0].toString()]
+        ..rate = r[1];
       listCurrency.add(c);
     }
     await isar.writeTxn(() async {
@@ -69,5 +78,21 @@ class Local {
     });
     var count = await isar.currencys.count();
     return (count > 0);
+  }
+
+  Future<List<Country>> getAllCountries() async {
+    List<Country> countries = [];
+    await isar.txn(() async {
+      countries = await isar.countrys.where().findAll();
+    });
+    return countries;
+  }
+
+  Future<List<Currency>> getAllCurrency() async {
+    List<Currency> currency = [];
+    await isar.txn(() async {
+      currency = await isar.currencys.where().findAll();
+    });
+    return currency;
   }
 }

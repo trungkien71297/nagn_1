@@ -2,6 +2,8 @@ import 'package:decimal/decimal.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
+import 'package:nagn_1/models/country.dart';
+import 'package:nagn_1/models/currency.dart';
 import 'package:nagn_1/repository/currency_repository.dart';
 
 part 'home_event.dart';
@@ -16,9 +18,13 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
   late String outputString;
   late String tmpRes;
   late Operation currentOperation;
+  late Country inputCountry;
+  late Country outputCountry;
+  List<Country> countries = [];
+  List<Currency> currency = [];
   NumberFormat currencyFormatterInput = NumberFormat.decimalPattern();
   NumberFormat currencyFormatterOutput = NumberFormat.decimalPattern();
-  HomeBloc(this.repository) : super(HomeInitial()) {
+  HomeBloc(this.repository) : super(HomeInitial(const [])) {
     _reset();
     currencyFormatterInput.maximumFractionDigits = 15;
     currencyFormatterInput.minimumFractionDigits = 0;
@@ -27,10 +33,16 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
     on<HomeOnInputNumber>(_onInputNumber);
     on<HomeOnInputFunction>(_onInputFunction);
     on<HomeOnInputOperation>(_onInputOperation);
+    on<HomeInit>(_onInit);
+  }
+  _onInit(HomeInit event, Emitter emitter) async {
+    await _getAllCountries();
+    await _getAllCurrency();
+
+    emitter(HomeInitial(countries));
   }
 
   _onInputOperation(HomeOnInputOperation event, Emitter emitter) {
-    repository.test();
     if (currentOperation == event.operation && onOperate) {
       return;
     }
@@ -156,5 +168,13 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
     currentOperation = Operation.none;
     inputController.text = "0";
     outputController.text = "0";
+  }
+
+  _getAllCountries() async {
+    countries = await repository.getCountries();
+  }
+
+  _getAllCurrency() async {
+    currency = await repository.getCurrencies();
   }
 }

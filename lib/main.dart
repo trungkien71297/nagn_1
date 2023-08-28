@@ -14,7 +14,6 @@ void main() async {
 }
 
 class MyApp extends StatelessWidget {
-
   const MyApp({super.key});
 
   @override
@@ -28,7 +27,10 @@ class MyApp extends StatelessWidget {
       ),
       initialRoute: "/splash",
       routes: {
-        "/home": (context) => BlocProvider(create: (context) => GetIt.instance<HomeBloc>(), child: const HomePage(),),
+        "/home": (context) => BlocProvider(
+              create: (context) => GetIt.instance<HomeBloc>()..add(HomeInit()),
+              child: const HomePage(),
+            ),
         "/splash": (context) => const SplashScreen()
       },
     );
