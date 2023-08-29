@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:decimal/decimal.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -5,6 +7,7 @@ import 'package:intl/intl.dart';
 import 'package:nagn_1/models/country.dart';
 import 'package:nagn_1/models/currency.dart';
 import 'package:nagn_1/repository/currency_repository.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 part 'home_event.dart';
 part 'home_state.dart';
@@ -18,13 +21,17 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
   late String outputString;
   late String tmpRes;
   late Operation currentOperation;
-  late Country inputCountry;
-  late Country outputCountry;
+  Currency inputCurrency = Currency();
+  Currency outputCurrency = Currency();
+  Country inputCountry = Country();
+  Country outputCountry = Country();
   List<Country> countries = [];
   List<Currency> currency = [];
   NumberFormat currencyFormatterInput = NumberFormat.decimalPattern();
   NumberFormat currencyFormatterOutput = NumberFormat.decimalPattern();
-  HomeBloc(this.repository) : super(HomeInitial(const [])) {
+  final _searchController = StreamController<List<Country>>.broadcast();
+  Stream<List<Country>> get listSearch => _searchController.stream;
+  HomeBloc(this.repository) : super(HomeInitial()) {
     _reset();
     currencyFormatterInput.maximumFractionDigits = 15;
     currencyFormatterInput.minimumFractionDigits = 0;
@@ -34,12 +41,97 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
     on<HomeOnInputFunction>(_onInputFunction);
     on<HomeOnInputOperation>(_onInputOperation);
     on<HomeInit>(_onInit);
+    on<HomeOnChangeCurrency>(_onChangeCurrency);
+    on<HomeOnUpdateNewRate>(_updateNewRate);
+    on<HomeOnSearchCountry>(_onQuery);
   }
   _onInit(HomeInit event, Emitter emitter) async {
     await _getAllCountries();
     await _getAllCurrency();
+    outputCurrency = currency.firstWhere(
+      (element) => element.code == "VND",
+    );
+    outputCountry = countries.firstWhere(
+      (element) => element.code2 == "VN",
+    );
+    inputCurrency = currency.firstWhere(
+      (element) => element.code == "USD",
+    );
+    inputCountry = countries.firstWhere(
+      (element) => element.code2 == "US",
+    );
 
-    emitter(HomeInitial(countries));
+    final sharedPreferences = await SharedPreferences.getInstance();
+    var lastUpdate = sharedPreferences.getString("lastUpdate") ?? "";
+    emitter(HomeInitial());
+    var rate = Decimal.parse('${outputCurrency.rate}') /
+        Decimal.parse('${inputCurrency.rate}');
+    var info =
+        "${inputCurrency.code ?? ""} ${inputCurrency.symbols ?? ""} 1 = ${outputCurrency.code ?? ""} ${outputCurrency.symbols ?? ""} ${rate.toDouble().toStringAsFixed(2)}";
+    emitter(OnChangeCurrency(info));
+    emitter(OnUpdateRate(lastUpdate));
+  }
+
+  _onQuery(HomeOnSearchCountry event, Emitter emitter) {
+    if (event.query.isEmpty) {
+      _searchController.sink.add(countries);
+    } else {
+      var res = countries.where((element) {
+        var check1 =
+            element.code2?.toLowerCase().contains(event.query) ?? false;
+        var check2 =
+            element.code3?.toLowerCase().contains(event.query) ?? false;
+        var check3 =
+            element.currencyCode?.toLowerCase().contains(event.query) ?? false;
+        var check4 =
+            element.currencyName?.toLowerCase().contains(event.query) ?? false;
+        var check5 = element.name?.toLowerCase().contains(event.query) ?? false;
+        return check1 || check2 || check3 || check4 || check5;
+      });
+      _searchController.sink.add(res.toList());
+    }
+  }
+
+  _updateNewRate(HomeOnUpdateNewRate event, Emitter emitter) async {
+    emitter(UpdateState(UpdatingRate.updating));
+    var res = await repository.updateCurrency();
+    if (res) {
+      await _getAllCountries();
+      await _getAllCurrency();
+
+      outputCurrency = currency.firstWhere(
+        (element) => element.code == outputCurrency.code,
+      );
+      inputCurrency = currency.firstWhere(
+        (element) => element.code == inputCurrency.code,
+      );
+
+      final sharedPreferences = await SharedPreferences.getInstance();
+      var lastUpdate = sharedPreferences.getString("lastUpdate") ?? "";
+      var rate = Decimal.parse('${outputCurrency.rate}') /
+          Decimal.parse('${inputCurrency.rate}');
+      var info =
+          "${inputCurrency.code ?? ""} ${inputCurrency.symbols ?? ""} 1 = ${outputCurrency.code ?? ""} ${outputCurrency.symbols ?? ""} ${rate.toDouble().toStringAsFixed(2)}";
+      emitter(OnChangeCurrency(info));
+      emitter(OnUpdateRate(lastUpdate));
+    }
+    emitter(UpdateState(UpdatingRate.done));
+  }
+
+  _onChangeCurrency(HomeOnChangeCurrency event, Emitter emitter) {
+    if (event.isInput) {
+      inputCurrency = event.currency;
+      inputCountry = event.country;
+    } else {
+      outputCurrency = event.currency;
+      outputCountry = event.country;
+    }
+    _convert();
+    var rate = Decimal.parse('${outputCurrency.rate}') /
+        Decimal.parse('${inputCurrency.rate}');
+    var info =
+        "${inputCurrency.code ?? ""} ${inputCurrency.symbols ?? ""} 1 = ${outputCurrency.code ?? ""} ${outputCurrency.symbols ?? ""} ${rate.toDouble().toStringAsFixed(2)}";
+    emitter(OnChangeCurrency(info));
   }
 
   _onInputOperation(HomeOnInputOperation event, Emitter emitter) {
@@ -135,8 +227,10 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
 
   _convert() {
     Decimal n = Decimal.tryParse(inputString) ?? Decimal.parse('0');
-    var result = n * Decimal.parse('23000');
-    outputString = "$result";
+    var result = n *
+        Decimal.parse('${outputCurrency.rate}') /
+        Decimal.parse('${inputCurrency.rate}');
+    outputString = "${result.toDouble()}";
     _updateOutputView();
   }
 

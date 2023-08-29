@@ -22,14 +22,21 @@ final class HomeOnInputFunction extends HomeEvent {
   HomeOnInputFunction(this.key);
 }
 
-final class HomeOnChangeInputCurrency extends HomeEvent {
+final class HomeOnChangeCurrency extends HomeEvent {
   final Country country;
-  HomeOnChangeInputCurrency(this.country);
+  final Currency currency;
+  final bool isInput;
+  HomeOnChangeCurrency(this.country, this.currency, this.isInput);
 }
 
-final class HomeOnChangeOutputCurrency extends HomeEvent {
-  final Country country;
-  HomeOnChangeOutputCurrency(this.country);
+final class HomeOnUpdateNewRate extends HomeEvent {
+  HomeOnUpdateNewRate();
+}
+
+final class HomeOnSearchCountry extends HomeEvent {
+  final String query;
+
+  HomeOnSearchCountry(this.query);
 }
 
 enum FunctionKey { backward, clear, percentage, dec }

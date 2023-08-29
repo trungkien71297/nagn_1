@@ -1,4 +1,4 @@
-package com.example.nagn_1
+package nagn.peemoti.currency_converter
 
 import io.flutter.embedding.android.FlutterActivity
 

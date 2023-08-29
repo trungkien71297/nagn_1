@@ -4,13 +4,28 @@ part of '../../../blocs/home/home_bloc.dart';
 abstract class HomeState {}
 
 class HomeInitial extends HomeState {
-  final List<Country> countries;
-
-  HomeInitial(this.countries);
+  HomeInitial();
 }
 
 final class OperationState extends HomeState {
   final Operation operation;
-
   OperationState(this.operation);
 }
+
+final class OnChangeCurrency extends HomeState {
+  final String info;
+  OnChangeCurrency(this.info);
+}
+
+final class OnUpdateRate extends HomeState {
+  final String lastUpdate;
+
+  OnUpdateRate(this.lastUpdate);
+}
+
+final class UpdateState extends HomeState {
+  final UpdatingRate update;
+  UpdateState(this.update);
+}
+
+enum UpdatingRate { none, updating, done }

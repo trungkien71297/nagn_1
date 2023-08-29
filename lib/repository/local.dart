@@ -1,6 +1,3 @@
-import 'dart:convert';
-import 'dart:ffi';
-
 import 'package:csv/csv.dart';
 import 'package:flutter/services.dart';
 import 'package:isar/isar.dart';
@@ -94,5 +91,31 @@ class Local {
       currency = await isar.currencys.where().findAll();
     });
     return currency;
+  }
+
+  Future<bool> updateCurrency(Map<String, dynamic> rateData) async {
+    final symbolString =
+        await rootBundle.loadString("assets/files/symbols_list.csv");
+    final symbolData = const CsvToListConverter().convert(symbolString);
+    Map<String, String> symbols = {};
+    for (var e in symbolData) {
+      symbols[e[1].toString()] = e[2].toString();
+    }
+    List<Currency> listCurrency = [];
+    for (var r in rateData.keys) {
+      var c = Currency()
+        ..code = r
+        ..symbols = symbols[r]
+        ..rate = double.tryParse(rateData[r]) ?? 0.0;
+      listCurrency.add(c);
+    }
+    await isar.writeTxn(() async {
+      await isar.currencys.clear();
+    });
+    await isar.writeTxn(() async {
+      await isar.currencys.putAll(listCurrency);
+    });
+    var count = await isar.currencys.count();
+    return (count > 0);
   }
 }
