@@ -33,330 +33,332 @@ class _HomePageState extends State<HomePage>
       //     children: [DrawerHeader(child: Text("HELLO", style: TextStyle(fontSize: 20),))],
       //   ),
       // ),
-      body: Column(
-        mainAxisAlignment: MainAxisAlignment.end,
-        children: [
-          Expanded(
-            flex: 1,
-            child: BlocBuilder<HomeBloc, HomeState>(
+      body: SafeArea(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.end,
+          children: [
+            Expanded(
+              flex: 1,
+              child: BlocBuilder<HomeBloc, HomeState>(
+                buildWhen: (previous, current) => current is OnChangeCurrency,
+                builder: (ctx, state) {
+                  return TextCurrency(
+                    initCountry: ctx.read<HomeBloc>().inputCountry.code2 ?? "",
+                    initSymbol: ctx.read<HomeBloc>().inputCurrency.symbols ??
+                        ctx.read<HomeBloc>().inputCurrency.code ??
+                        "",
+                    background: const Color.fromRGBO(45, 49, 59, 1),
+                    controller: ctx.read<HomeBloc>().inputController,
+                    readOnly: true,
+                    onFlagPressed: () {
+                      _showModal(context, isInput: true);
+                      context.read<HomeBloc>().add(HomeOnSearchCountry(""));
+                    },
+                  );
+                },
+              ),
+            ),
+            BlocBuilder<HomeBloc, HomeState>(
               buildWhen: (previous, current) => current is OnChangeCurrency,
-              builder: (ctx, state) {
-                return TextCurrency(
-                  initCountry: ctx.read<HomeBloc>().inputCountry.code2 ?? "",
-                  initSymbol: ctx.read<HomeBloc>().inputCurrency.symbols ??
-                      ctx.read<HomeBloc>().inputCurrency.code ??
-                      "",
-                  background: const Color.fromRGBO(45, 49, 59, 1),
-                  controller: ctx.read<HomeBloc>().inputController,
-                  readOnly: true,
-                  onFlagPressed: () {
-                    _showModal(context, isInput: true);
-                    context.read<HomeBloc>().add(HomeOnSearchCountry(""));
-                  },
+              builder: (context, state) {
+                return Expanded(
+                  flex: 1,
+                  child: TextCurrency(
+                    initCountry:
+                        context.read<HomeBloc>().outputCountry.code2 ?? "",
+                    initSymbol: context.read<HomeBloc>().outputCurrency.symbols ??
+                        context.read<HomeBloc>().outputCurrency.code ??
+                        "",
+                    background: const Color.fromRGBO(51, 56, 67, 1),
+                    controller: context.read<HomeBloc>().outputController,
+                    readOnly: true,
+                    onFlagPressed: () {
+                      _showModal(context, isInput: false);
+                      context.read<HomeBloc>().add(HomeOnSearchCountry(""));
+                    },
+                  ),
                 );
               },
             ),
-          ),
-          BlocBuilder<HomeBloc, HomeState>(
-            buildWhen: (previous, current) => current is OnChangeCurrency,
-            builder: (context, state) {
-              return Expanded(
-                flex: 1,
-                child: TextCurrency(
-                  initCountry:
-                      context.read<HomeBloc>().outputCountry.code2 ?? "",
-                  initSymbol: context.read<HomeBloc>().outputCurrency.symbols ??
-                      context.read<HomeBloc>().outputCurrency.code ??
-                      "",
-                  background: const Color.fromRGBO(51, 56, 67, 1),
-                  controller: context.read<HomeBloc>().outputController,
-                  readOnly: true,
-                  onFlagPressed: () {
-                    _showModal(context, isInput: false);
-                    context.read<HomeBloc>().add(HomeOnSearchCountry(""));
+            GridView.count(
+              shrinkWrap: true,
+              physics: const NeverScrollableScrollPhysics(),
+              crossAxisCount: 4,
+              children: [
+                KeyCap(
+                  onPressed: () {
+                    context
+                        .read<HomeBloc>()
+                        .add(HomeOnInputFunction(FunctionKey.clear));
+                  },
+                  text: "AC",
+                ),
+                KeyCap(
+                  onPressed: () {
+                    context
+                        .read<HomeBloc>()
+                        .add(HomeOnInputFunction(FunctionKey.backward));
+                  },
+                  text: "←",
+                ),
+                KeyCap(
+                  onPressed: () {
+                    context
+                        .read<HomeBloc>()
+                        .add(HomeOnInputFunction(FunctionKey.percentage));
+                  },
+                  text: "%",
+                ),
+                BlocBuilder<HomeBloc, HomeState>(
+                  buildWhen: (previous, current) => current is OperationState,
+                  builder: (context, state) {
+                    bool isSelect = false;
+                    if (state is OperationState) {
+                      if (state.operation == Operation.divide) {
+                        isSelect = true;
+                      }
+                    }
+                    return KeyCap(
+                      onPressed: () {
+                        context
+                            .read<HomeBloc>()
+                            .add(HomeOnInputOperation(Operation.divide));
+                      },
+                      isSelect: isSelect,
+                      text: "÷",
+                    );
                   },
                 ),
-              );
-            },
-          ),
-          GridView.count(
-            shrinkWrap: true,
-            physics: const NeverScrollableScrollPhysics(),
-            crossAxisCount: 4,
-            children: [
-              KeyCap(
-                onPressed: () {
-                  context
-                      .read<HomeBloc>()
-                      .add(HomeOnInputFunction(FunctionKey.clear));
-                },
-                text: "AC",
-              ),
-              KeyCap(
-                onPressed: () {
-                  context
-                      .read<HomeBloc>()
-                      .add(HomeOnInputFunction(FunctionKey.backward));
-                },
-                text: "←",
-              ),
-              KeyCap(
-                onPressed: () {
-                  context
-                      .read<HomeBloc>()
-                      .add(HomeOnInputFunction(FunctionKey.percentage));
-                },
-                text: "%",
-              ),
-              BlocBuilder<HomeBloc, HomeState>(
-                buildWhen: (previous, current) => current is OperationState,
-                builder: (context, state) {
-                  bool isSelect = false;
-                  if (state is OperationState) {
-                    if (state.operation == Operation.divide) {
-                      isSelect = true;
-                    }
-                  }
-                  return KeyCap(
-                    onPressed: () {
-                      context
-                          .read<HomeBloc>()
-                          .add(HomeOnInputOperation(Operation.divide));
-                    },
-                    isSelect: isSelect,
-                    text: "÷",
-                  );
-                },
-              ),
-              KeyCap(
-                onPressed: () {
-                  context.read<HomeBloc>().add(HomeOnInputNumber("7"));
-                },
-                text: "7",
-              ),
-              KeyCap(
-                onPressed: () {
-                  context.read<HomeBloc>().add(HomeOnInputNumber("8"));
-                },
-                text: "8",
-              ),
-              KeyCap(
-                onPressed: () {
-                  context.read<HomeBloc>().add(HomeOnInputNumber("9"));
-                },
-                text: "9",
-              ),
-              BlocBuilder<HomeBloc, HomeState>(
-                buildWhen: (previous, current) => current is OperationState,
-                builder: (context, state) {
-                  bool isSelect = false;
-                  if (state is OperationState) {
-                    if (state.operation == Operation.multi) {
-                      isSelect = true;
-                    }
-                  }
-                  return KeyCap(
-                    onPressed: () {
-                      context
-                          .read<HomeBloc>()
-                          .add(HomeOnInputOperation(Operation.multi));
-                    },
-                    isSelect: isSelect,
-                    text: "×",
-                  );
-                },
-              ),
-              KeyCap(
-                onPressed: () {
-                  context.read<HomeBloc>().add(HomeOnInputNumber("4"));
-                },
-                text: "4",
-              ),
-              KeyCap(
-                onPressed: () {
-                  context.read<HomeBloc>().add(HomeOnInputNumber("5"));
-                },
-                text: "5",
-              ),
-              KeyCap(
-                onPressed: () {
-                  context.read<HomeBloc>().add(HomeOnInputNumber("6"));
-                },
-                text: "6",
-              ),
-              BlocBuilder<HomeBloc, HomeState>(
-                buildWhen: (previous, current) => current is OperationState,
-                builder: (context, state) {
-                  bool isSelect = false;
-                  if (state is OperationState) {
-                    if (state.operation == Operation.minus) {
-                      isSelect = true;
-                    }
-                  }
-                  return KeyCap(
-                    onPressed: () {
-                      context
-                          .read<HomeBloc>()
-                          .add(HomeOnInputOperation(Operation.minus));
-                    },
-                    isSelect: isSelect,
-                    text: "-",
-                  );
-                },
-              ),
-              KeyCap(
-                onPressed: () {
-                  context.read<HomeBloc>().add(HomeOnInputNumber("1"));
-                },
-                text: "1",
-              ),
-              KeyCap(
-                onPressed: () {
-                  context.read<HomeBloc>().add(HomeOnInputNumber("2"));
-                },
-                text: "2",
-              ),
-              KeyCap(
-                onPressed: () {
-                  context.read<HomeBloc>().add(HomeOnInputNumber("3"));
-                },
-                text: "3",
-              ),
-              BlocBuilder<HomeBloc, HomeState>(
-                buildWhen: (previous, current) => current is OperationState,
-                builder: (context, state) {
-                  bool isSelect = false;
-                  if (state is OperationState) {
-                    if (state.operation == Operation.add) {
-                      isSelect = true;
-                    }
-                  }
-                  return KeyCap(
-                    onPressed: () {
-                      context
-                          .read<HomeBloc>()
-                          .add(HomeOnInputOperation(Operation.add));
-                    },
-                    isSelect: isSelect,
-                    text: "+",
-                  );
-                },
-              ),
-              KeyCap(
-                onPressed: () {
-                  context.read<HomeBloc>().add(HomeOnInputNumber("0"));
-                },
-                text: "0",
-              ),
-              KeyCap(
-                onPressed: () {
-                  context.read<HomeBloc>().add(HomeOnInputNumber("000"));
-                },
-                text: "000",
-              ),
-              KeyCap(
-                onPressed: () {
-                  context
-                      .read<HomeBloc>()
-                      .add(HomeOnInputFunction(FunctionKey.dec));
-                },
-                text: ".",
-              ),
-              KeyCap(
-                onPressed: () {
-                  context
-                      .read<HomeBloc>()
-                      .add(HomeOnInputOperation(Operation.equal));
-                },
-                text: "=",
-              ),
-            ],
-          ),
-          Container(
-            width: double.infinity,
-            height: 40,
-            color: Colors.brown,
-            child: Stack(
-              children: [
-                // Align(
-                //   alignment: Alignment.centerLeft,
-                //   child: IconButton(
-                //     icon: const Icon(
-                //       Icons.menu,
-                //       color: Colors.white60,
-                //     ),
-                //     onPressed: () {
-                //       scaffoldKey.currentState!.openEndDrawer();
-                //     },
-                //   ),
-                // ),
-                Align(
-                  alignment: Alignment.center,
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: [
-                      BlocBuilder<HomeBloc, HomeState>(
-                          buildWhen: (previous, current) =>
-                              current is OnChangeCurrency,
-                          builder: (context, state) {
-                            return Text(
-                                state is OnChangeCurrency ? state.info : "",
-                                style: const TextStyle(
-                                    fontSize: 16, color: Colors.white60));
-                          }),
-                      BlocBuilder<HomeBloc, HomeState>(
-                          buildWhen: (previous, current) =>
-                              current is OnUpdateRate,
-                          builder: (context, state) {
-                            return Text(
-                              state is OnUpdateRate
-                                  ? "Last server update: ${state.lastUpdate}"
-                                  : "",
-                              style: const TextStyle(
-                                  fontSize: 10, color: Colors.white60),
-                            );
-                          }),
-                    ],
-                  ),
+                KeyCap(
+                  onPressed: () {
+                    context.read<HomeBloc>().add(HomeOnInputNumber("7"));
+                  },
+                  text: "7",
                 ),
-                Align(
-                    alignment: Alignment.centerRight,
-                    child: BlocBuilder<HomeBloc, HomeState>(
-                      buildWhen: (previous, current) => current is UpdateState,
-                      builder: (context, state) {
-                        if (state is UpdateState) {
-                          switch (state.update) {
-                            case UpdatingRate.done:
-                            case UpdatingRate.none:
-                              animationController.stop();
-                              break;
-                            case UpdatingRate.updating:
-                              animationController.repeat();
-                              break;
-                            default:
-                              break;
-                          }
-                        }
-                        return RotationTransition(
-                          turns: Tween(begin: 0.0, end: -1.0)
-                              .animate(animationController),
-                          child: IconButton(
-                              tooltip: "Update",
-                              onPressed: () => context
-                                  .read<HomeBloc>()
-                                  .add(HomeOnUpdateNewRate()),
-                              icon: const Icon(
-                                Icons.sync_outlined,
-                                color: Colors.white60,
-                              )),
-                        );
+                KeyCap(
+                  onPressed: () {
+                    context.read<HomeBloc>().add(HomeOnInputNumber("8"));
+                  },
+                  text: "8",
+                ),
+                KeyCap(
+                  onPressed: () {
+                    context.read<HomeBloc>().add(HomeOnInputNumber("9"));
+                  },
+                  text: "9",
+                ),
+                BlocBuilder<HomeBloc, HomeState>(
+                  buildWhen: (previous, current) => current is OperationState,
+                  builder: (context, state) {
+                    bool isSelect = false;
+                    if (state is OperationState) {
+                      if (state.operation == Operation.multi) {
+                        isSelect = true;
+                      }
+                    }
+                    return KeyCap(
+                      onPressed: () {
+                        context
+                            .read<HomeBloc>()
+                            .add(HomeOnInputOperation(Operation.multi));
                       },
-                    ))
+                      isSelect: isSelect,
+                      text: "×",
+                    );
+                  },
+                ),
+                KeyCap(
+                  onPressed: () {
+                    context.read<HomeBloc>().add(HomeOnInputNumber("4"));
+                  },
+                  text: "4",
+                ),
+                KeyCap(
+                  onPressed: () {
+                    context.read<HomeBloc>().add(HomeOnInputNumber("5"));
+                  },
+                  text: "5",
+                ),
+                KeyCap(
+                  onPressed: () {
+                    context.read<HomeBloc>().add(HomeOnInputNumber("6"));
+                  },
+                  text: "6",
+                ),
+                BlocBuilder<HomeBloc, HomeState>(
+                  buildWhen: (previous, current) => current is OperationState,
+                  builder: (context, state) {
+                    bool isSelect = false;
+                    if (state is OperationState) {
+                      if (state.operation == Operation.minus) {
+                        isSelect = true;
+                      }
+                    }
+                    return KeyCap(
+                      onPressed: () {
+                        context
+                            .read<HomeBloc>()
+                            .add(HomeOnInputOperation(Operation.minus));
+                      },
+                      isSelect: isSelect,
+                      text: "-",
+                    );
+                  },
+                ),
+                KeyCap(
+                  onPressed: () {
+                    context.read<HomeBloc>().add(HomeOnInputNumber("1"));
+                  },
+                  text: "1",
+                ),
+                KeyCap(
+                  onPressed: () {
+                    context.read<HomeBloc>().add(HomeOnInputNumber("2"));
+                  },
+                  text: "2",
+                ),
+                KeyCap(
+                  onPressed: () {
+                    context.read<HomeBloc>().add(HomeOnInputNumber("3"));
+                  },
+                  text: "3",
+                ),
+                BlocBuilder<HomeBloc, HomeState>(
+                  buildWhen: (previous, current) => current is OperationState,
+                  builder: (context, state) {
+                    bool isSelect = false;
+                    if (state is OperationState) {
+                      if (state.operation == Operation.add) {
+                        isSelect = true;
+                      }
+                    }
+                    return KeyCap(
+                      onPressed: () {
+                        context
+                            .read<HomeBloc>()
+                            .add(HomeOnInputOperation(Operation.add));
+                      },
+                      isSelect: isSelect,
+                      text: "+",
+                    );
+                  },
+                ),
+                KeyCap(
+                  onPressed: () {
+                    context.read<HomeBloc>().add(HomeOnInputNumber("0"));
+                  },
+                  text: "0",
+                ),
+                KeyCap(
+                  onPressed: () {
+                    context.read<HomeBloc>().add(HomeOnInputNumber("000"));
+                  },
+                  text: "000",
+                ),
+                KeyCap(
+                  onPressed: () {
+                    context
+                        .read<HomeBloc>()
+                        .add(HomeOnInputFunction(FunctionKey.dec));
+                  },
+                  text: ".",
+                ),
+                KeyCap(
+                  onPressed: () {
+                    context
+                        .read<HomeBloc>()
+                        .add(HomeOnInputOperation(Operation.equal));
+                  },
+                  text: "=",
+                ),
               ],
             ),
-          )
-        ],
+            Container(
+              width: double.infinity,
+              height: 40,
+              color: Colors.brown,
+              child: Stack(
+                children: [
+                  // Align(
+                  //   alignment: Alignment.centerLeft,
+                  //   child: IconButton(
+                  //     icon: const Icon(
+                  //       Icons.menu,
+                  //       color: Colors.white60,
+                  //     ),
+                  //     onPressed: () {
+                  //       scaffoldKey.currentState!.openEndDrawer();
+                  //     },
+                  //   ),
+                  // ),
+                  Align(
+                    alignment: Alignment.center,
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        BlocBuilder<HomeBloc, HomeState>(
+                            buildWhen: (previous, current) =>
+                                current is OnChangeCurrency,
+                            builder: (context, state) {
+                              return Text(
+                                  state is OnChangeCurrency ? state.info : "",
+                                  style: const TextStyle(
+                                      fontSize: 16, color: Colors.white60));
+                            }),
+                        BlocBuilder<HomeBloc, HomeState>(
+                            buildWhen: (previous, current) =>
+                                current is OnUpdateRate,
+                            builder: (context, state) {
+                              return Text(
+                                state is OnUpdateRate
+                                    ? "Last server update: ${state.lastUpdate}"
+                                    : "",
+                                style: const TextStyle(
+                                    fontSize: 10, color: Colors.white60),
+                              );
+                            }),
+                      ],
+                    ),
+                  ),
+                  Align(
+                      alignment: Alignment.centerRight,
+                      child: BlocBuilder<HomeBloc, HomeState>(
+                        buildWhen: (previous, current) => current is UpdateState,
+                        builder: (context, state) {
+                          if (state is UpdateState) {
+                            switch (state.update) {
+                              case UpdatingRate.done:
+                              case UpdatingRate.none:
+                                animationController.stop();
+                                break;
+                              case UpdatingRate.updating:
+                                animationController.repeat();
+                                break;
+                              default:
+                                break;
+                            }
+                          }
+                          return RotationTransition(
+                            turns: Tween(begin: 0.0, end: -1.0)
+                                .animate(animationController),
+                            child: IconButton(
+                                tooltip: "Update",
+                                onPressed: () => context
+                                    .read<HomeBloc>()
+                                    .add(HomeOnUpdateNewRate()),
+                                icon: const Icon(
+                                  Icons.sync_outlined,
+                                  color: Colors.white60,
+                                )),
+                          );
+                        },
+                      ))
+                ],
+              ),
+            )
+          ],
+        ),
       ),
     );
   }
