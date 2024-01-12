@@ -54,7 +54,7 @@ const CountrySchema = CollectionSchema(
   getId: _countryGetId,
   getLinks: _countryGetLinks,
   attach: _countryAttach,
-  version: '3.1.0',
+  version: '3.1.0+1',
 );
 
 int _countryEstimateSize(
